@@ -29,6 +29,11 @@ To run this Project go to ./cmd folder and run **go run main.go**
 
 For endpoints testing, Postman collection is placed under ./docs folder
 
+**Unit testing**
+1. Added testcases under handler and service, wherever required.
+2. Used Mock to make sure, it doesn't affect the datastore.
+3. Run **go test -cover ./...** under this current directory to see the coverage of all packages.
+
 **NOTE**
 1. For Ease of usage, few products and customers are already added.
 2. Datastore used is in-memory map instead of actual db.
