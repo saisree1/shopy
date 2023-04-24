@@ -21,7 +21,7 @@ Config Values : config.env file is placed under ./config folder with below data
    - DISCOUNT_PRODUCTS_COUNT=3
    - MAX_PRODUCTS_IN_ORDER=10
 
-Possible Values For Few fields
+Possible Values For few fieldsare as below. Used gin package **binding** tag to validate these fields.
    - product category values: Premium/Regular/Budget
    - order status values: Placed/Dispatched/Completed/Cancelled
 
