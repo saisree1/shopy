@@ -25,6 +25,8 @@ Possible Values For few fields are as below. Used gin package **binding** tag to
    - product category values: Premium/Regular/Budget
    - order status values: Placed/Dispatched/Completed/Cancelled
 
+Also, Added Api Spec doc based on the OpenAPI 3.0 specification.
+
 To run this Project go to ./cmd folder and run **go run main.go**
 
 For endpoints testing, Postman collection is placed under ./docs folder
