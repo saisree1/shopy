@@ -1,0 +1,399 @@
+openapi: 3.0.3
+info:
+  title: Shopy
+  description: |-
+    This is a simple ecommerce APIs where the customer can place orders based on the available products.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+tags:
+  - name: "customer"
+    description: "Access to customer details"
+  - name: "product"
+    description: "Operations about product"
+  - name: "order"
+    description: "Everything about orders"
+paths:
+  /product:
+    get:
+      tags:
+        - product
+      summary: Returns all the products
+      description: Returns all the products from the datastore
+      operationId: getAllProducts
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetAllProductsResponse'
+    post:
+      tags:
+        - product
+      summary: Add new product
+      description: Add new product
+      operationId: addProduct
+      requestBody:
+        description: Add new product into datastore
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                code: 200
+                message: "Success"
+                body: 
+                  id: "p1"
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              examples:
+                Duplicate Product Id:
+                  value:
+                    code: 400
+                    message: "Id already exists"
+                Invalid Fields:
+                  value:
+                    code: 400
+                    message: "Invalid RequestBody"
+  /customer:
+    get:
+      tags:
+        - customer
+      summary: Gets All customers
+      description: Get All customers available in the datastore
+      operationId: getAllCustomers
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetAllCustomersResponse'
+  /order:
+    get:
+      tags:
+        - order
+      summary: Get all orders for a customer
+      description: Get all orders for a customer from datastore
+      operationId: getAllOrdersForCustomer
+      parameters:
+        - name: cId
+          in: query
+          description: ID of customer to return the order details
+          required: true
+          schema:
+            type: string
+            example: "c1"
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllOrdersResponse'
+              example:
+                code: 200
+                message: "Success"
+                body: 
+                   - id: 2c0774e8-5fcc-47b1-b99f-a273c260348a
+                     orderedItems:
+                      - productId: p1
+                        quantity: 10
+                      - productId: p2
+                        quantity: 5
+                     deliveryAddress: Mock-123,Mock Street,MockCity-123456
+                     totalAmount: 1230.89
+                     isDiscountApplied: true
+                     status: Placed
+                     orderedDate: 2023-02-05T12:34:00Z+05:00
+                   - id: 2c0774e8-5fcc-47b1-b99f-a273c260348b
+                     orderedItems:
+                      - productId: p4
+                        quantity: 4
+                      - productId: p2
+                        quantity: 2
+                     deliveryAddress: Mock-123,Mock Street,MockCity-123456
+                     totalAmount: 11000.95
+                     isDiscountApplied: true
+                     status: Dispatched
+                     orderedDate: 2023-02-01T12:34:00Z+05:00
+                     dispatchDate: 2023-02-02T12:34:00Z+05:00
+        '400':
+          description: Invalid customerId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                code: 400
+                message: "Invalid customerId"
+    post:
+      tags:
+        - order
+      summary: Add new order for a customer
+      description: Add new order for a customer into datastore
+      operationId: addOrder
+      requestBody:
+        description: Add new order request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+            example:
+              customerId: "c1"
+              orderedItems:
+                - productId: "p1"
+                  quantity: 8
+                - productId: "p2"
+                  quantity: 5
+              deliveryAddress: "Mock-123,Mock Street,MockCity-123456"
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                code: 200
+                message: "Success"
+                body: 
+                  id: "2c0774e8-5fcc-47b1-b99f-a273c260348b"
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              examples:
+                Invalid CustomerId:
+                    value:
+                      code: 400
+                      message: "Invalid customerId"
+                Invalid ProductId:
+                    value:
+                      code: 400
+                      message: "Invalid productId in orderedItems list"
+                Product Not Available:
+                    value:
+                      code: 400
+                      message: "productId p1 is not available, please order only available products"
+                Product Quantity not as per limit:
+                    value:
+                      code: 400
+                      message: "productId p1 quantity should be greater than 0 and less than 10"
+                Product Quantity more than availability:
+                    value:
+                      code: 400
+                      message: "productId p1 is not avaiable in given quantity, please order available quantity or less"
+  /order/status:
+    put:
+      tags:
+        - order
+      summary: update order status for a customer
+      description: update order status for a customer in datastore
+      operationId: updateOrder
+      requestBody:
+        description: Update order status request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrder'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                code: 200
+                message: "Success"
+        '400':
+          description: Invalid OrderId
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/Response'
+              examples:
+                Invalid OrderId:
+                  value:
+                    code: 400
+                    message: "Invalid orderId"
+components:
+  schemas:
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "2c0774e8-5fcc-47b1-b99f-a273c260348a"
+        customerId:
+          type: string
+          example: "c1"
+        orderedItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderedItems'
+        deliveryAddress:
+          type: string
+          example: "Mock-123,Mock Street,MockCity-123456"
+        totalAmount:
+          type: number
+          format: double
+          example: 1230.89
+        isDiscountApplied:
+          type: boolean
+          example: true
+        status:
+          type: string
+          enum:
+            - Placed
+            - Dispatched
+            - Cancelled
+            - Completed
+        orderedDate:
+          type: string
+          example: "2023-02-01T12:34:00Z+05:00"
+        dispatchDate:
+          type: string
+          example: "2023-02-01T12:34:00Z+05:00"
+    UpdateOrder:
+      required:
+        - id
+        - status
+      type: object
+      properties:
+        id:
+          type: string
+          example: "2c0774e8-5fcc-47b1-b99f-a273c260348a"
+        status:
+          type: string
+          enum:
+            - Placed
+            - Dispatched
+            - Cancelled
+            - Completed
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "c1"
+        name:
+          type: string
+          example: "fehguy"
+        mobileNumber:
+          type: string
+          example: "999999999"
+    OrderedItems:
+      type: object
+      properties:
+        productId:
+          type: string
+          example: "p2"
+        quantity:
+          type: integer
+          example: 10
+    Product:
+      required:
+        - id
+        - name
+        - price
+        - category
+        - quantity
+      type: object
+      properties:
+        id:
+          type: string
+          example: p10
+        name:
+          type: string
+          example: Pens
+        price:
+          type: number
+          format: double
+          example: 10.99
+        category:
+          type: string
+          enum:
+            - Regular
+            - Budget
+            - Premium
+        quantity:
+          type: integer
+          format: int32
+          example: 120
+    Response:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 200
+        message:
+          type: string
+          example: Success
+        body:
+          type: object
+    GetAllProductsResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 200
+        message:
+          type: string
+          example: Success
+        body:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    GetAllCustomersResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 200
+        message:
+          type: string
+          example: Success
+        body:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
+    GetAllOrdersResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 200
+        message:
+          type: string
+          example: Success
+        body:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
